@@ -3,6 +3,11 @@ using System.Windows.Forms;
 
 namespace _3timersProj
 {
+
+    //1.	Написать приложение, показывающее диалоговое окно с тремя счетчиками и тремя кнопками: Старт, Стоп, Сброс.
+    //Старт запускает счетчики(интервалы обновления — 0.5 сек, 1 сек, 1.5 сек), Стоп останавливает, Сброс останавливает
+    //и сбрасывает счетчики в 0. Увеличение счетчиков реализовать в отдельных рабочих потоках.
+
     public partial class TimersForm : Form
     {
         private ThreadTimer[] _timers;
@@ -39,6 +44,7 @@ namespace _3timersProj
 
             buttonStop.Text = buttonStop.Text == "Stop" ? "Continue" : "Stop";
         }
+
         private void buttonDischarge_Click(object sender, EventArgs e)
         {
             for (int i = 0; i < _timers.Length; i++)

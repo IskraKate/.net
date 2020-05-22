@@ -57,7 +57,8 @@ namespace _3timersProj
         {
             _stopWatch = _stopWatch.AddSeconds(1);
 
-            _timeLabel.Text = _stopWatch.Hour.ToString() + ":" + _stopWatch.Minute.ToString() + ":" + _stopWatch.Second.ToString();
+            _timeLabel.BeginInvoke((MethodInvoker)(() => _timeLabel.Text = _stopWatch.Hour.ToString() + ":" + _stopWatch.Minute.ToString() + ":" +_stopWatch.Second.ToString()));
+
         }
     }
 }
