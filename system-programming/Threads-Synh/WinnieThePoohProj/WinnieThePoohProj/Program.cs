@@ -63,12 +63,10 @@ namespace WinnieThePoohProj
             {
                 if (SharedResources.Honey >= _portion && !SharedResources.IsDead)
                 {
-                    SharedResources.Mutex.WaitOne();
                     SharedResources.Honey -= _portion;
                     Console.WriteLine($"Winnie ate {_portion}");
                     Console.WriteLine($"Honey {SharedResources.Honey}");
                     Thread.Sleep(_timeToEat);
-                    SharedResources.Mutex.ReleaseMutex();
                 }
                 else
                 {
@@ -76,22 +74,20 @@ namespace WinnieThePoohProj
 
                     if (SharedResources.Honey >= _portion && !SharedResources.IsDead)
                     {
-                        SharedResources.Mutex.WaitOne();
                         SharedResources.Honey -= _portion;
+
                         Console.WriteLine($"Winnie ate {_portion}");
                         Console.WriteLine($"Honey {SharedResources.Honey}");
                         Thread.Sleep(_timeToEat);
-                        SharedResources.Mutex.ReleaseMutex();
                     }
                     else
                     {
-                        SharedResources.Mutex.WaitOne();
                         SharedResources.IsDead = true;
                         SharedResources.Honey -= _portion;
+
                         Console.WriteLine($"Winnie ate {_portion}");
                         Console.WriteLine($"Honey {SharedResources.Honey}");
                         Console.WriteLine("Winnie is dead :c");
-                        SharedResources.Mutex.ReleaseMutex();
                     }
                 }
             }
@@ -125,19 +121,20 @@ namespace WinnieThePoohProj
         { 
                
             while (!SharedResources.IsDead)
-            { 
+            {
+                SharedResources.Mutex.WaitOne();
+
                 if (!(SharedResources.Honey  < 0))
                 {
-                    SharedResources.Mutex.WaitOne();
 
                     SharedResources.Honey += _portion;
                     Console.WriteLine($"Bee {_thisNum } got {_portion } honey. Delay time {_delayTime }");
                     Console.WriteLine($"Honey {SharedResources.Honey}");
 
                     Thread.Sleep(_delayTime);
-
-                    SharedResources.Mutex.ReleaseMutex();
                 }
+
+                SharedResources.Mutex.ReleaseMutex();
             }
               
         }
