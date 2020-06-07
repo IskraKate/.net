@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Timers;
 using System.Windows.Forms;
+using System.Windows.Threading;
 
 namespace SemaphoresProj
 {
@@ -13,7 +14,10 @@ namespace SemaphoresProj
         private int _maxNum;
         private int _count;
 
-        public int Num { get; private set; } = 1;
+        private delegate void IncreaceNumberHandler();
+        private event IncreaceNumberHandler IncreaceNumber;
+
+        public int Num { get; set; }
         public string State { get; set; } = "";
 
         public string Count
@@ -40,8 +44,8 @@ namespace SemaphoresProj
             if (Num != _maxNum)
             {
                 Num++;
-
-                State = Num.ToString();
+                State = Num.ToString() + " / " + _maxNum.ToString();
+                _semaphoresTest.UpdateWorkingThread(this);
             }
             else
             {

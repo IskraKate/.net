@@ -36,14 +36,24 @@ namespace SemaphoresProj
         }
 
         public void MoveWaitingThread(MyThread thread)
-        { 
+        {
             listBoxWorking.Invoke((MethodInvoker)(() => listBoxWorking.Items.Add(thread)));
             listBoxWaiting.Invoke((MethodInvoker)(() => listBoxWaiting.Items.Remove(thread)));
+        }
+        public void UpdateWorkingThread(MyThread thread)
+        {
+            listBoxWorking.Invoke((MethodInvoker)(() => listBoxWorking.Items.Remove(thread)));
+            listBoxWorking.Invoke((MethodInvoker)(() => listBoxWorking.Items.Add(thread)));
         }
 
         public void RemoveWorkingThread(MyThread thread)
         {
             listBoxWorking.Invoke((MethodInvoker)(() => listBoxWorking.Items.Remove(thread)));
+        }
+
+        public void IncreaseNumber(MyThread thread)
+        {
+            thread.State = thread.Num.ToString();
         }
 
 
