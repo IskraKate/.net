@@ -11,40 +11,47 @@ namespace SemaphoresProj
         private Thread _thread;
         private System.Timers.Timer _timer;
         private SemaphoresTest _semaphoresTest;
-        private int _maxNum;
-        private int _count;
 
-        private delegate void IncreaceNumberHandler();
-        private event IncreaceNumberHandler IncreaceNumber;
-
+        public int Count { get; private set; }
+        public bool IsStopping { get; set; }
         public int Num { get; set; }
         public string State { get; set; } = "";
 
-        public string Count
+        public string CountState
         {
             get
             {
-                return $"Thread {_count } --> {State}";
+                return $"Thread {Count } --> {State}";
             }
         }
 
         public MyThread(SemaphoresTest semaphoresTest, int count)
         {
-            _semaphoresTest = semaphoresTest;      
+            _semaphoresTest = semaphoresTest;
 
             _thread = new Thread(ThreadProc);
             _thread.IsBackground = true;
-            _maxNum = new Random().Next(50, 250);
 
-            _count = count;
+            Count = count;
+        }
+
+        public MyThread(SemaphoresTest semaphoresTest, int count, int num)
+        {
+            _semaphoresTest = semaphoresTest;
+
+            _thread = new Thread(ThreadProc);
+            _thread.IsBackground = true;
+
+            Count = count;
+            Num = num;
         }
 
         private void _timer_Tick(object sender, EventArgs e)
         {
-            if (Num != _maxNum)
+            if (!IsStopping)
             {
                 Num++;
-                State = Num.ToString() + " / " + _maxNum.ToString();
+                State = Num.ToString();
                 _semaphoresTest.UpdateWorkingThread(this);
             }
             else
@@ -64,13 +71,21 @@ namespace SemaphoresProj
             _timer.Interval = 1000;
 
             _semaphoresTest.CaptureSemaphore();
+
+            State = Num.ToString();
+
             _semaphoresTest.MoveWaitingThread(this);
             _timer.Start();
         }
 
+
         public void Start() 
         {
             _thread.Start();
+        }
+        public void Stop()
+        {
+            _thread.Abort();
         }
     }
 }

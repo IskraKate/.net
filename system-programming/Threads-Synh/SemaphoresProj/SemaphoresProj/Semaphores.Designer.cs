@@ -32,12 +32,12 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.domainUpDownPlaces = new System.Windows.Forms.DomainUpDown();
             this.buttonCreate = new System.Windows.Forms.Button();
             this.listBoxCreated = new System.Windows.Forms.ListBox();
             this.listBoxWaiting = new System.Windows.Forms.ListBox();
             this.listBoxWorking = new System.Windows.Forms.ListBox();
-            this.buttonAccept = new System.Windows.Forms.Button();
+            this.numericUpDown = new System.Windows.Forms.NumericUpDown();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -81,28 +81,8 @@
             this.label4.TabIndex = 3;
             this.label4.Text = "Places in semaphore";
             // 
-            // domainUpDownPlaces
-            // 
-            this.domainUpDownPlaces.Items.Add("1");
-            this.domainUpDownPlaces.Items.Add("2");
-            this.domainUpDownPlaces.Items.Add("3");
-            this.domainUpDownPlaces.Items.Add("4");
-            this.domainUpDownPlaces.Items.Add("5");
-            this.domainUpDownPlaces.Items.Add("6");
-            this.domainUpDownPlaces.Items.Add("7");
-            this.domainUpDownPlaces.Items.Add("8");
-            this.domainUpDownPlaces.Items.Add("9");
-            this.domainUpDownPlaces.Items.Add("10");
-            this.domainUpDownPlaces.Location = new System.Drawing.Point(33, 213);
-            this.domainUpDownPlaces.Name = "domainUpDownPlaces";
-            this.domainUpDownPlaces.ReadOnly = true;
-            this.domainUpDownPlaces.Size = new System.Drawing.Size(129, 22);
-            this.domainUpDownPlaces.TabIndex = 7;
-            this.domainUpDownPlaces.Text = "0";
-            // 
             // buttonCreate
             // 
-            this.buttonCreate.Enabled = false;
             this.buttonCreate.Location = new System.Drawing.Point(626, 212);
             this.buttonCreate.Name = "buttonCreate";
             this.buttonCreate.Size = new System.Drawing.Size(124, 23);
@@ -137,31 +117,28 @@
             this.listBoxWorking.ItemHeight = 16;
             this.listBoxWorking.Location = new System.Drawing.Point(33, 48);
             this.listBoxWorking.Name = "listBoxWorking";
-            this.listBoxWorking.SelectionMode = System.Windows.Forms.SelectionMode.None;
             this.listBoxWorking.Size = new System.Drawing.Size(204, 100);
             this.listBoxWorking.TabIndex = 11;
+            this.listBoxWorking.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listBoxWorking_MouseDoubleClick);
             // 
-            // buttonAccept
+            // numericUpDown
             // 
-            this.buttonAccept.Location = new System.Drawing.Point(162, 212);
-            this.buttonAccept.Name = "buttonAccept";
-            this.buttonAccept.Size = new System.Drawing.Size(75, 23);
-            this.buttonAccept.TabIndex = 12;
-            this.buttonAccept.Text = "Accept";
-            this.buttonAccept.UseVisualStyleBackColor = true;
-            this.buttonAccept.Click += new System.EventHandler(this.buttonAccept_Click);
+            this.numericUpDown.Location = new System.Drawing.Point(33, 213);
+            this.numericUpDown.Name = "numericUpDown";
+            this.numericUpDown.Size = new System.Drawing.Size(129, 22);
+            this.numericUpDown.TabIndex = 12;
+            this.numericUpDown.ValueChanged += new System.EventHandler(this.numericUpDown_ValueChanged);
             // 
             // SemaphoresTest
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(794, 267);
-            this.Controls.Add(this.buttonAccept);
+            this.Controls.Add(this.numericUpDown);
             this.Controls.Add(this.listBoxWorking);
             this.Controls.Add(this.listBoxWaiting);
             this.Controls.Add(this.listBoxCreated);
             this.Controls.Add(this.buttonCreate);
-            this.Controls.Add(this.domainUpDownPlaces);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
@@ -170,6 +147,7 @@
             this.MaximizeBox = false;
             this.Name = "SemaphoresTest";
             this.Text = "Semaphores";
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -181,12 +159,11 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.DomainUpDown domainUpDownPlaces;
         private System.Windows.Forms.Button buttonCreate;
         private System.Windows.Forms.ListBox listBoxCreated;
         private System.Windows.Forms.ListBox listBoxWaiting;
         private System.Windows.Forms.ListBox listBoxWorking;
-        private System.Windows.Forms.Button buttonAccept;
+        private System.Windows.Forms.NumericUpDown numericUpDown;
     }
 }
 
