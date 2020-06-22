@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ExamProj
@@ -20,6 +22,9 @@ namespace ExamProj
             if(!String.IsNullOrEmpty(textBoxCens.Text))
             {
                 listBoxCens.Items.Add(textBoxCens.Text);
+
+                _words.Add(textBoxCens.Text);
+
                 textBoxCens.Text = String.Empty;
             }
         }
@@ -48,6 +53,7 @@ namespace ExamProj
                 for (int j = 0; j < word.Length; j++)
                 {
                      listBoxCens.Items.Add(word[j]);
+                    _words.Add(word[j]);
                 }
             }
         }
@@ -61,6 +67,7 @@ namespace ExamProj
 
                 if (result == DialogResult.Yes)
                 {
+                    _words.Remove(listBoxCens.SelectedItem.ToString());
                     listBoxCens.Items.RemoveAt(listBoxCens.SelectedIndex);
                 } 
             }
@@ -91,7 +98,7 @@ namespace ExamProj
             if(listBoxCens.Items.Count > 0)
             {
                 buttonStart.Enabled = true;
-                progressBar1.Enabled = true;
+                progressBar.Enabled = true;
                 button2.Enabled = true;
                 button3.Enabled = true;
             }
@@ -107,18 +114,43 @@ namespace ExamProj
                 thread.Start(); 
             }
         }
-         
+
         private void ThreadProc()
         {
             string[] drives = Environment.GetLogicalDrives();
-             
-                for (int i = 0; i < drives.Length; i++)
+
+            progressBar.Invoke((MethodInvoker)(() => progressBar.Value = 0));
+
+            Task[] tasks = new Task[drives.Length];
+            Stopwatch stopwatch = new Stopwatch();
+
+            stopwatch.Start();
+            for (int i = 0; i < tasks.Length; i++)
+            {
+                tasks[i] = Task.Run(() =>
                 {
                     Directories(drives[i]);
-                }
+                });
 
-            MessageBox.Show(_fileList.Count.ToString());
-            buttonStart.Enabled = true;
+                Thread.Sleep(100); // без этого появляется ошибка с индексом
+            }
+
+            Task.WaitAll(tasks);
+            stopwatch.Stop();
+
+            MessageBox.Show($"Files count: {_fileList.Count}\nTime passed: {stopwatch.Elapsed.Seconds} seconds");
+
+            stopwatch.Reset();
+            stopwatch.Start();
+
+            getWords();
+
+            stopwatch.Stop();
+            MessageBox.Show($"Getting word has done\nTime passed: {stopwatch.Elapsed.Seconds} seconds");
+
+
+            buttonStart.Invoke((MethodInvoker)(() => buttonStart.Enabled = true));
+            progressBar.Invoke((MethodInvoker)(() => progressBar.Value = 0));
             _fileList.Clear();
         }
 
@@ -135,6 +167,7 @@ namespace ExamProj
                     Directories(dirs[i].FullName);
                 }
 
+
                 var files = di.GetFiles();
 
                 for (int i = 0; i < files.Length; i++)
@@ -144,24 +177,37 @@ namespace ExamProj
                         _fileList.Add(files[i]);
                     }
                 }
-
-                getWords();
             }
-            catch { }
+            catch
+            {
+
+            }
         }
 
         private void getWords()
         {
+            progressBar.Invoke((MethodInvoker)(() => progressBar.Maximum = _fileList.Count));
+            progressBar.Invoke((MethodInvoker)(() => progressBar.Value = 0));
+            int value = 1;
+
             foreach (var file in _fileList)
             {
                 try
                 {
                     using (StreamReader sr = new StreamReader(file.FullName))
                     {
-                        string line;
-                        while ((line = sr.ReadLine()) != null)
+                        string text = sr.ReadToEnd();
+                        string newText = string.Empty;
+
+                        foreach (var word in _words)
                         {
-                            string textFromFile = line;
+                            if (text.Contains(word))
+                            {
+                                newText = ReplaseWord(text);
+                                SaveReplacedText(file, newText);
+
+                                break;
+                            }
                         }
                     }
                 }
@@ -169,33 +215,26 @@ namespace ExamProj
                 {
 
                 }
-               
-              // CheckSimilar(file);
+
+                progressBar.Invoke((MethodInvoker)(() => progressBar.Value = value));
+                value++;
             }
              
         }
-
-        private void CheckSimilar(FileInfo file)
+        private string ReplaseWord(string text)
         {
-            var text = File.ReadAllText(file.FullName); 
-             
+            string newText = text;
             foreach (var word in _words)
             {
-                foreach ( var item in listBoxCens.Items)
-                {
-                    if (word == item as string)
-                    {
-                        try
-                        {
-                            var newText = text.Replace(word, "*******");
-                            Directory.CreateDirectory(textBoxCopy.Text + "\\CopyCensored\\");
-                            File.WriteAllText(textBoxCopy.Text + "\\CopyCensored\\" + file.Name, newText);
-                        }
-                        catch { }
-                    }
-                }
+                newText = text.Replace(word, "*******");
             }
-        }
 
+            return newText;
+        }
+        private void SaveReplacedText(FileInfo file, string newText)
+        {
+            Directory.CreateDirectory(textBoxCopy.Text + "\\CopyCensored\\");
+            File.WriteAllText(textBoxCopy.Text + "\\CopyCensored\\" + file.Name, newText);
+        }
     }
 }
