@@ -134,7 +134,7 @@ namespace ExamProj
 
             progressBar.Invoke((MethodInvoker)(() => progressBar.Value = 0));
 
-            Task[] tasks = new Task[1];
+            Task[] tasks = new Task[drives.Length];
 
             for (int i = 0; i < tasks.Length; i++)
             {
