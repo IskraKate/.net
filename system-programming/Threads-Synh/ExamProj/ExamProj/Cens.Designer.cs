@@ -43,8 +43,8 @@
             this.textBoxCopy = new System.Windows.Forms.TextBox();
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.buttonPlay = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
+            this.buttonStop = new System.Windows.Forms.Button();
+            this.buttonAbort = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBoxAdding.SuspendLayout();
             this.SuspendLayout();
@@ -205,31 +205,31 @@
             this.buttonPlay.UseVisualStyleBackColor = true;
             this.buttonPlay.Click += new System.EventHandler(this.buttonPlay_Click);
             // 
-            // button2
+            // buttonStop
             // 
-            this.button2.Enabled = false;
-            this.button2.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.button2.Location = new System.Drawing.Point(296, 425);
-            this.button2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(111, 42);
-            this.button2.TabIndex = 13;
-            this.button2.Text = "||";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.buttonStop.Enabled = false;
+            this.buttonStop.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.buttonStop.Location = new System.Drawing.Point(296, 425);
+            this.buttonStop.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.buttonStop.Name = "buttonStop";
+            this.buttonStop.Size = new System.Drawing.Size(111, 42);
+            this.buttonStop.TabIndex = 13;
+            this.buttonStop.Text = "||";
+            this.buttonStop.UseVisualStyleBackColor = true;
+            this.buttonStop.Click += new System.EventHandler(this.buttonPause_Click);
             // 
-            // button3
+            // buttonAbort
             // 
-            this.button3.Enabled = false;
-            this.button3.Font = new System.Drawing.Font("Consolas", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.button3.Location = new System.Drawing.Point(435, 423);
-            this.button3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(111, 42);
-            this.button3.TabIndex = 14;
-            this.button3.Text = "■";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.buttonAbort.Enabled = false;
+            this.buttonAbort.Font = new System.Drawing.Font("Consolas", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.buttonAbort.Location = new System.Drawing.Point(435, 423);
+            this.buttonAbort.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.buttonAbort.Name = "buttonAbort";
+            this.buttonAbort.Size = new System.Drawing.Size(111, 42);
+            this.buttonAbort.TabIndex = 14;
+            this.buttonAbort.Text = "■";
+            this.buttonAbort.UseVisualStyleBackColor = true;
+            this.buttonAbort.Click += new System.EventHandler(this.buttonAbort_Click);
             // 
             // label1
             // 
@@ -248,8 +248,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(696, 487);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
+            this.Controls.Add(this.buttonAbort);
+            this.Controls.Add(this.buttonStop);
             this.Controls.Add(this.buttonPlay);
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.textBoxCopy);
@@ -290,8 +290,8 @@
         private System.Windows.Forms.TextBox textBoxCopy;
         private System.Windows.Forms.ProgressBar progressBar;
         private System.Windows.Forms.Button buttonPlay;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button buttonStop;
+        private System.Windows.Forms.Button buttonAbort;
         private System.Windows.Forms.Button buttonFromFile;
         private System.Windows.Forms.Label label1;
     }

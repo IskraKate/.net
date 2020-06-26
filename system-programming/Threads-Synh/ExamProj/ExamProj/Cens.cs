@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO; 
+using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
@@ -12,9 +13,12 @@ namespace ExamProj
     public partial class FormCens : System.Windows.Forms.Form
     {
         private List<FileInfo> _fileList = new List<FileInfo>();
-        private List<string> _words = new List<string>();
+        private List<CensoredFileInfo> _cencoredFileList = new List<CensoredFileInfo>();
+        private List<Word> _words = new List<Word>();
         private Thread _thread;
         private ManualResetEvent _event;
+
+        private ReportFile _report;
 
         public FormCens()
         {
@@ -28,7 +32,7 @@ namespace ExamProj
             {
                 listBoxCens.Items.Add(textBoxCens.Text);
 
-                _words.Add(textBoxCens.Text);
+                _words.Add(new Word(textBoxCens.Text));
 
                 textBoxCens.Text = String.Empty;
 
@@ -68,7 +72,7 @@ namespace ExamProj
                 for (int j = 0; j < word.Length; j++)
                 {
                     listBoxCens.Items.Add(word[j]);
-                    _words.Add(word[j]);
+                    _words.Add(new Word(word[j]));
                 }
             }
         }
@@ -82,7 +86,14 @@ namespace ExamProj
 
                 if (result == DialogResult.Yes)
                 {
-                    _words.Remove(listBoxCens.SelectedItem.ToString());
+                    foreach (Word word in _words)
+                    {
+                        if (word.CenWord == listBoxCens.SelectedItem.ToString())
+                        {
+                            _words.Remove(word);
+                            break;
+                        }
+                    }
                     listBoxCens.Items.RemoveAt(listBoxCens.SelectedIndex);
                 }
             }
@@ -114,8 +125,8 @@ namespace ExamProj
             {
                 buttonStart.Enabled = true;
                 progressBar.Enabled = true;
-                button2.Enabled = true;
-                button3.Enabled = true;
+                buttonStop.Enabled = true;
+                buttonAbort.Enabled = true;
             }
         }
 
@@ -154,14 +165,21 @@ namespace ExamProj
 
             timer.Stop();
 
-            getWords();
+            GetWords();
 
             progressBar.Invoke((MethodInvoker)(() => progressBar.Value = 0));
             _fileList.Clear();
 
-            buttonStart.Enabled = true;
-            label1.Visible = false;
-            label1.Text = "Getting files...";
+
+            label1.Invoke((MethodInvoker)(() => label1.Text = "Save..."));
+            _report = new ReportFile(_cencoredFileList, _words);
+            _report.SaveReportFile(textBoxCopy.Text + "\\Report File\\");
+            _report.SaveMostPopularWord(textBoxCopy.Text + "\\Report File\\");
+
+            buttonStart.Invoke((MethodInvoker)(() => buttonStart.Enabled = true));
+            label1.Invoke((MethodInvoker)(() => label1.Visible = false));
+            label1.Invoke((MethodInvoker)(() => label1.Text = "Getting files..."));
+            MessageBox.Show("Done!:)");
         }
 
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)
@@ -212,31 +230,27 @@ namespace ExamProj
             }
         }
 
-        private void getWords()
+        private void Replacer(int startIndex, int endIndex, ref int value)
         {
-            label1.Invoke((MethodInvoker)(() => label1.Text = "Censoring files and copy them...")); 
-
-            progressBar.Invoke((MethodInvoker)(() => progressBar.Maximum = _fileList.Count));
-            progressBar.Invoke((MethodInvoker)(() => progressBar.Value = 0));
-            int value = 1;
-
-            foreach (var file in _fileList)
+            for (int i = startIndex; i < endIndex; i++)
             {
                 try
                 {
                     _event.WaitOne(Timeout.Infinite);
 
-                    using (StreamReader sr = new StreamReader(file.FullName))
+                    using (StreamReader sr = new StreamReader(_fileList[i].FullName))
                     {
                         string text = sr.ReadToEnd();
                         string newText = string.Empty;
 
                         foreach (var word in _words)
                         {
-                            if (text.Contains(word))
+                            if (text.Contains(word.CenWord))
                             {
-                                newText = ReplaseWord(text);
-                                SaveReplacedText(file, newText);
+                                _cencoredFileList.Add(new CensoredFileInfo(_fileList[i]));
+
+                                newText = ReplaseWord(_cencoredFileList.Last(), text);
+                                SaveReplacedText(_fileList[i], newText);
 
                                 break;
                             }
@@ -247,22 +261,60 @@ namespace ExamProj
                 {
 
                 }
-
-                progressBar.Invoke((MethodInvoker)(() => progressBar.Value = value));
+                int progressBarValue = value;
+                progressBar.Invoke((MethodInvoker)(() => progressBar.Value = progressBarValue));
                 value++;
             }
-             
+        }
+        private void GetWords()
+        {
+            label1.Invoke((MethodInvoker)(() => label1.Text = "Censoring files and copy them...")); 
+
+            progressBar.Invoke((MethodInvoker)(() => progressBar.Maximum = _fileList.Count));
+            progressBar.Invoke((MethodInvoker)(() => progressBar.Value = 0));
+            int value = 1;
+
+            int taskcount = _fileList.Count / 10000;
+            Task[] tasks = new Task[taskcount + 1];
+            int startIndex = 0;
+            int endIndex = 10000;
+
+            for(int i = 0; i < tasks.Length; i++)
+            {
+                tasks[i] = Task.Run(() =>
+                {
+                    Replacer(startIndex, endIndex, ref value);
+                });
+
+                startIndex = endIndex;
+                if((_fileList.Count - endIndex) < 10000)
+                {
+                    endIndex = _fileList.Count;
+                }
+                else
+                {
+                    endIndex += 10000;
+                }
+            }
+
+            Task.WaitAll(tasks);             
         }
 
-        private string ReplaseWord(string text)
+        private string ReplaseWord(CensoredFileInfo file, string text)
         {
             string newText = text;
             foreach (var word in _words)
             {
-                newText = text.Replace(word, "*******");
+                word.ReplacementCount += CountWords(text, word.CenWord);
+                file.ReplacementCount++;
             }
 
             return newText;
+        }
+        private int CountWords(string text, string word)
+        {
+            int count = (text.Length - text.Replace($" {word} ", "*******").Length) / word.Length;
+            return count * -1;
         }
 
         private void SaveReplacedText(FileInfo file, string newText)
@@ -276,20 +328,20 @@ namespace ExamProj
             buttonPlay.Enabled = false;
             _event.Set();
         }
-        private void button2_Click(object sender, EventArgs e)
+        private void buttonPause_Click(object sender, EventArgs e)
         {
             buttonPlay.Enabled = true;   
             _event.Reset();
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void buttonAbort_Click(object sender, EventArgs e)
         {
             _thread.Abort();
             progressBar.Invoke((MethodInvoker)(() => progressBar.Value = 0));
 
             label1.Visible = false;
-            button2.Enabled = false;
-            button3.Enabled = false;
+            buttonStop.Enabled = false;
+            buttonAbort.Enabled = false;
 
             if(listBoxCens.Items.Count>0 && !String.IsNullOrEmpty(textBoxCopy.Text))
             {
