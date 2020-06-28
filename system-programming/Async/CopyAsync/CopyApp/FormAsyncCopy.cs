@@ -11,7 +11,7 @@ namespace WindowsFormsApp1
         public FormAsyncCopy()
         {
             InitializeComponent();
-            progressBar1.Value = 0;
+            progressBar.Value = 0;
         }
 
         private void buttonFileFrom_Click(object sender, EventArgs e)
@@ -60,10 +60,10 @@ namespace WindowsFormsApp1
                 {
                     output.Write(buffer, 0, read);
                     float pct = (1.0f * input.Position) / input.Length * 100.0f;
-                    progressBar1.Invoke((MethodInvoker)(() => progressBar1.Value = (int)pct));
+                    progressBar.Invoke((MethodInvoker)(() => progressBar.Value = (int)pct));
                 }
 
-                if(progressBar1.Value == 100)
+                if(progressBar.Value == 100)
                         buttonCopy.Invoke((MethodInvoker)(() => buttonCopy.Enabled = true));
             }
         }

@@ -32,7 +32,7 @@
             this.buttonCopy = new System.Windows.Forms.Button();
             this.textBoxFrom = new System.Windows.Forms.TextBox();
             this.textBoxWhere = new System.Windows.Forms.TextBox();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.progressBar = new System.Windows.Forms.ProgressBar();
             this.labelFrom = new System.Windows.Forms.Label();
             this.labelWhere = new System.Windows.Forms.Label();
             this.buttonWhere = new System.Windows.Forms.Button();
@@ -72,12 +72,12 @@
             this.textBoxWhere.Size = new System.Drawing.Size(365, 22);
             this.textBoxWhere.TabIndex = 4;
             // 
-            // progressBar1
+            // progressBar
             // 
-            this.progressBar1.Location = new System.Drawing.Point(26, 168);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(534, 39);
-            this.progressBar1.TabIndex = 5;
+            this.progressBar.Location = new System.Drawing.Point(26, 168);
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(534, 39);
+            this.progressBar.TabIndex = 5;
             // 
             // labelFrom
             // 
@@ -115,7 +115,7 @@
             this.Controls.Add(this.buttonWhere);
             this.Controls.Add(this.labelWhere);
             this.Controls.Add(this.labelFrom);
-            this.Controls.Add(this.progressBar1);
+            this.Controls.Add(this.progressBar);
             this.Controls.Add(this.textBoxWhere);
             this.Controls.Add(this.textBoxFrom);
             this.Controls.Add(this.buttonCopy);
@@ -136,7 +136,7 @@
         private System.Windows.Forms.Button buttonCopy;
         private System.Windows.Forms.TextBox textBoxFrom;
         private System.Windows.Forms.TextBox textBoxWhere;
-        private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.ProgressBar progressBar;
         private System.Windows.Forms.Label labelFrom;
         private System.Windows.Forms.Label labelWhere;
         private System.Windows.Forms.Button buttonWhere;
