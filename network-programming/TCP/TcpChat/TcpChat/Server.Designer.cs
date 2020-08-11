@@ -28,34 +28,36 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.logs = new System.Windows.Forms.ListBox();
             this.SuspendLayout();
             // 
-            // richTextBox1
+            // logs
             // 
-            this.richTextBox1.Location = new System.Drawing.Point(12, 12);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(621, 381);
-            this.richTextBox1.TabIndex = 3;
-            this.richTextBox1.Text = "";
+            this.logs.FormattingEnabled = true;
+            this.logs.ItemHeight = 16;
+            this.logs.Location = new System.Drawing.Point(12, 12);
+            this.logs.Name = "logs";
+            this.logs.Size = new System.Drawing.Size(621, 372);
+            this.logs.TabIndex = 0;
             // 
             // Server
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(645, 405);
-            this.Controls.Add(this.richTextBox1);
+            this.Controls.Add(this.logs);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.Name = "Server";
             this.Text = "ChatServer";
+            this.Load += new System.EventHandler(this.Server_Load);
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.ListBox logs;
     }
 }
 
