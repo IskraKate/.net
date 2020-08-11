@@ -8,11 +8,6 @@ using System.Text.RegularExpressions;
 
 namespace HttpClientSample
 {
-    class Opened
-    {
-        public static List<string> OpenedLnks { get; set; } = new List<string>();
-    }
-
     public class WebParser
     {
         private string _homePage = String.Empty;
@@ -48,7 +43,7 @@ namespace HttpClientSample
                     using (var client = new HttpClient())
                     using (var strStream = new StreamReader(await client.GetStreamAsync(mainLink)))
                     {
-                        Opened.OpenedLnks.Add(mainLink);
+                        WebPage.OpenedLnks.Add(mainLink);
                         string newLine = String.Empty;
 
                         while ((newLine = strStream.ReadLine()) != null)
@@ -61,7 +56,7 @@ namespace HttpClientSample
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
             }
         }
@@ -81,7 +76,7 @@ namespace HttpClientSample
                     string atribute = AttributeRepair(atr);
                     var protocol = "https://";
 
-                    if (Opened.OpenedLnks.All(l => !l.Contains(atribute)) &&
+                    if (WebPage.OpenedLnks.All(l => !l.Contains(atribute)) &&
                        protocol + _homePage != atribute)
                     {
                        var splittedAtribute =  atribute.Split('/');
