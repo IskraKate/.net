@@ -13,7 +13,6 @@ namespace UpdClockServer
         private int _remotePort;
         private int _localPort;
 
-        private UdpClient _receiver;
         private UdpClient _sender;
 
         public ServerForm()
@@ -21,7 +20,7 @@ namespace UpdClockServer
             InitializeComponent();
 
             _remotePort = 8001;
-            _localPort = 8001;
+            _localPort = 8003;
 
             try
             {
@@ -39,10 +38,6 @@ namespace UpdClockServer
 
         private void serverForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if(_receiver != null)
-            {
-                _receiver.Close();
-            }
             if(_sender != null)
             {
                 _sender.Close();

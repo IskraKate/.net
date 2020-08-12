@@ -18,7 +18,7 @@ namespace UdpClock
         {
             InitializeComponent();
 
-            _localPort = 8001;
+            _localPort = 8002;
 
             try
             {
