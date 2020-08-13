@@ -12,11 +12,10 @@ namespace TcpChat
         private struct Client
         {
             public Socket Socket { get; set; }
-            public string Name { get; set; }
         }
 
         private Socket _socketListener;
-        private readonly List<Client> clientList = new List<Client>();
+        private readonly List<Client> _clientList = new List<Client>();
 
 
         private readonly byte[] _byteDataToReceive = new byte[1024];
@@ -49,7 +48,7 @@ namespace TcpChat
             try
             {
                 Socket clientSocket = _socketListener.EndAccept(ar);
-                clientList.Add(new Client { Socket = clientSocket, Name = "Sosiska" });
+                _clientList.Add(new Client { Socket = clientSocket });
 
                 _socketListener.BeginAccept(new AsyncCallback(OnAccept), null);
 
@@ -69,20 +68,22 @@ namespace TcpChat
                 Socket clientSocket = (Socket)ar.AsyncState;
                 clientSocket.EndReceive(ar);
 
-                string recievedString = Encoding.UTF8.GetString(_byteDataToReceive);
+                var recievedString = ParseReceiveStr();
+
                 logs.Invoke((MethodInvoker)(() => logs.Items.Add(recievedString)));
 
                 clientSocket.BeginReceive(_byteDataToReceive, 0, _byteDataToReceive.Length, SocketFlags.None,
                             new AsyncCallback(OnReceive), clientSocket);
 
-                byte[] byteDataToSend = Encoding.UTF8.GetBytes(recievedString);
 
-                for(int i = 0; i < clientList.Count; i++)
+                var byteDataToSend = ParseSendStr(recievedString);
+
+                for(int i = 0; i < _clientList.Count; i++)
                 {
-                    if (clientList[i].Socket != clientSocket)
+                    if (_clientList[i].Socket != clientSocket)
                     {
-                        clientList[i].Socket.BeginSend(byteDataToSend, 0, byteDataToSend.Length, SocketFlags.None,
-                            new AsyncCallback(OnSend), clientList[i].Socket);
+                        _clientList[i].Socket.BeginSend(byteDataToSend, 0, byteDataToSend.Length, SocketFlags.None,
+                            new AsyncCallback(OnSend), _clientList[i].Socket);
                     }
                 }
             }
@@ -91,6 +92,45 @@ namespace TcpChat
                 logs.Items.Add(ex.Message);
             }
         }
+
+        public string ParseReceiveStr()
+        {
+            var bytesLenght = new byte[4];
+
+            for (int i = 0; i < 4; i++)
+            {
+                bytesLenght[i] = _byteDataToReceive[i];
+            }
+
+            int bytesLengthInt = BitConverter.ToInt32(bytesLenght, 0);
+
+            var bytesMessage = new byte[bytesLengthInt];
+
+            for (int i = 0, j = 4; i < bytesLengthInt; i++, j++)
+            {
+                bytesMessage[i] = _byteDataToReceive[j];
+            }
+
+            string recievedString = Encoding.UTF8.GetString(bytesMessage);
+
+            return recievedString;
+        }
+
+        public byte[] ParseSendStr(string recievedString)
+        {
+            byte[] byteDataToSend = new byte[1024];
+            byte[] textInBytes = Encoding.UTF8.GetBytes(recievedString);
+
+            byteDataToSend = BitConverter.GetBytes(textInBytes.Length);
+            Array.Resize(ref byteDataToSend, byteDataToSend.Length + textInBytes.Length);
+            for (int i = 4, j = 0; i < byteDataToSend.Length; i++, j++)
+            {
+                byteDataToSend[i] = textInBytes[j];
+            }
+
+            return byteDataToSend;
+        }
+
         public void OnSend(IAsyncResult ar)
         {
             try

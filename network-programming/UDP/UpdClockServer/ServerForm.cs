@@ -19,7 +19,7 @@ namespace UpdClockServer
         {
             InitializeComponent();
 
-            _remotePort = 8001;
+            _remotePort = 8002;
             _localPort = 8003;
 
             try

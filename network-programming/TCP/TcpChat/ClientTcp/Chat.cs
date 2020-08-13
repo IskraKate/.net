@@ -31,9 +31,9 @@ namespace ClientTcp
         {
             try
             {
-                byte[] byteDataToSend = Encoding.UTF8.GetBytes(data);
+                var bytesToSend = ParseSendStr(data);
 
-                _clientSocket.BeginSend(byteDataToSend, 0, byteDataToSend.Length, SocketFlags.None,
+                _clientSocket.BeginSend(bytesToSend, 0, bytesToSend.Length, SocketFlags.None,
                     new AsyncCallback(OnSend), null);
             }
             catch(Exception ex)
@@ -41,6 +41,23 @@ namespace ClientTcp
                 listBoxMsges.Invoke((MethodInvoker)(() => listBoxMsges.Items.Add(ex.Message)));
             }
         }
+
+        public byte[] ParseSendStr(string data)
+        {
+            byte[] bytesToSend = new byte[1024];
+            var textInBytes = Encoding.UTF8.GetBytes(data);
+
+            bytesToSend = BitConverter.GetBytes(textInBytes.Length);
+            Array.Resize(ref bytesToSend, bytesToSend.Length + textInBytes.Length);
+
+            for (int i = 4, j = 0; i < bytesToSend.Length; i++, j++)
+            {
+                bytesToSend[i] = textInBytes[j];
+            }
+
+            return bytesToSend;
+        }
+
         private void RecieveData()
         {
             try
@@ -75,7 +92,10 @@ namespace ClientTcp
             {
                 _clientSocket.EndReceive(ar);
 
-                string message = Encoding.UTF8.GetString(_byteDataToReceive);
+                var bytesMessage = ParseRecieveStr();
+
+                string message = Encoding.UTF8.GetString(bytesMessage);
+
                 listBoxMsges.Invoke((MethodInvoker)(() => listBoxMsges.Items.Add(message)));
 
                 _clientSocket.BeginReceive(_byteDataToReceive, 0, _byteDataToReceive.Length, SocketFlags.None,
@@ -88,6 +108,26 @@ namespace ClientTcp
             {
                 listBoxMsges.Invoke((MethodInvoker)(() => listBoxMsges.Items.Add(ex.Message)));
             }
+        }
+
+        public byte[] ParseRecieveStr()
+        {
+            var bytesLenght = new byte[4];
+            for (int i = 0; i < 4; i++)
+            {
+                bytesLenght[i] = _byteDataToReceive[i];
+            }
+
+            int bytesLengthInt = BitConverter.ToInt32(bytesLenght, 0);
+
+            var bytesMessage = new byte[bytesLengthInt];
+
+            for (int i = 0, j = 4; i < bytesLengthInt; i++, j++)
+            {
+                bytesMessage[i] = _byteDataToReceive[j];
+            }
+
+            return bytesMessage;
         }
 
         private void Chat_Load(object sender, EventArgs e)
@@ -132,6 +172,7 @@ namespace ClientTcp
             if(e.KeyCode == Keys.Enter)
             {
                 buttonSend_Click(sender, new EventArgs());
+                e.SuppressKeyPress = true;
             }
         }
 
@@ -139,54 +180,5 @@ namespace ClientTcp
         {
             _clientName = login;
         }
-
-
-
-        //private void Chat_Load(object sender, EventArgs e)
-        //{
-        //    ClientName = "Kate";
-        //    Text = ClientName;
-
-        //    TcpClient client = null;
-        //    try
-        //    {
-        //        client = new TcpClient(address, port);
-        //        NetworkStream stream = client.GetStream();
-        //        while (true)
-        //        {
-        //            Console.Write(ClientName + ": ");
-        //            // ввод сообщения
-        //            string message = Console.ReadLine();
-        //            message = String.Format("{0}: {1}", ClientName, message);
-        //            // преобразуем сообщение в массив байтов
-        //            byte[] data = Encoding.Unicode.GetBytes(message);
-        //            // отправка сообщения
-        //            stream.Write(data, 0, data.Length);
-
-        //            // получаем ответ
-        //            data = new byte[64]; // буфер для получаемых данных
-        //            StringBuilder builder = new StringBuilder();
-        //            int bytes = 0;
-        //            do
-        //            {
-        //                bytes = stream.Read(data, 0, data.Length);
-        //                builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
-        //            }
-        //            while (stream.DataAvailable);
-
-        //            message = builder.ToString();
-        //            Console.WriteLine("Сервер: {0}", message);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.Message);
-        //    }
-        //    finally
-        //    {
-        //        client.Close();
-        //    }
-
-        //}
     }
 }
