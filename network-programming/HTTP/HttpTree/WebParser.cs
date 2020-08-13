@@ -17,11 +17,11 @@ namespace HttpClientSample
 
         public bool ParseFinished = false;
 
-        public WebParser(string mainLink)
+        public WebParser(string urlAddress)
         {
-            var splitedLink = mainLink.Split('/');
+            var splitedLink = urlAddress.Split('/');
             _homePage = splitedLink[2];
-            WebPg = new WebPage(mainLink, 0);
+            WebPg = new WebPage(urlAddress, 0);
             AsyncGetHtml(WebPg.Link);
         }
         public WebParser(WebPage webPage)
@@ -33,17 +33,17 @@ namespace HttpClientSample
             AsyncGetHtml(WebPg.Link);
         }
 
-        private async void AsyncGetHtml(string mainLink)
+        private async void AsyncGetHtml(string urlAddress)
         {
             try
             {
-                var splitedLink = mainLink.Split('/');
+                var splitedLink = urlAddress.Split('/');
                 if (_homePage == splitedLink[2])
                 {
                     using (var client = new HttpClient())
-                    using (var strStream = new StreamReader(await client.GetStreamAsync(mainLink)))
+                    using (var strStream = new StreamReader(await client.GetStreamAsync(urlAddress)))
                     {
-                        WebPage.OpenedLnks.Add(mainLink);
+                        WebPage.OpenedLnks.Add(urlAddress);
                         string newLine = String.Empty;
 
                         while ((newLine = strStream.ReadLine()) != null)
@@ -51,7 +51,7 @@ namespace HttpClientSample
                             _html += newLine + "\n";
                         }
 
-                        Parse(mainLink);
+                        Parse(urlAddress);
                         _html = String.Empty;
                     }
                 }

@@ -9,25 +9,34 @@ namespace HttpClientSample
 {
     public class WebParser
     {
-        static int counter;
         private string _homePage = String.Empty;
         private string _html = String.Empty;
+        private static string _url;
+        private static string _mUrl;
 
         public WebPage WebPg { get; private set; }
 
         public bool ParseFinished = false;
 
-        public WebParser(string mainLink)
+        public WebParser(string urlAddress)
         {
-            var splitedLink = mainLink.Split('/');
+            _url = urlAddress;
+            if(_url.StartsWith("https"))
+            {
+                _mUrl = _url.Insert(8, "m.");
+            }
+            else
+            {
+                _mUrl = _url.Insert(7, "m.");
+            }
+
+            var splitedLink = urlAddress.Split('/');
 
             if (splitedLink.Length >= 2)
                 _homePage = splitedLink[2];
 
-
-            WebPg = new WebPage(mainLink, _homePage);
-
-            WebPage.OpenedLnks.Add(mainLink);
+            WebPg = new WebPage(urlAddress, _homePage);
+            WebPage.OpenedLnks.Add(urlAddress);
             GetHtml(WebPg.Link);
         }
 
@@ -39,18 +48,11 @@ namespace HttpClientSample
             if(splitedLink.Length>=2)
                 _homePage = splitedLink[2];
 
-
-            WebPage.OpenedLnks.Add(webPage.Link);
             GetHtml(WebPg.Link);
         }
 
-        private void GetHtml(string mainLink)
+        private void GetHtml(string urlAddress)
         {
-            if (counter > 3)
-                return;
-
-            string urlAddress = mainLink;
-
             if(urlAddress.StartsWith("https://") || urlAddress.StartsWith("https://"))
             {
                 try
@@ -69,23 +71,19 @@ namespace HttpClientSample
                             readStream = new StreamReader(receiveStream, Encoding.GetEncoding(response.CharacterSet));
 
                         _html = readStream.ReadToEnd();
-                         WebPg.Html = _html;
-
-                        counter++;
 
                         response.Close();
                         readStream.Close();
 
-                        Parse(mainLink);
+                        Parse(urlAddress);
                     }
                 }
                 catch
                 { }
             }
-
         }
 
-        private void Parse(string mainLink)
+        private void Parse(string urlAddress)
         {
             CQ cq = CQ.Create(_html);
             foreach (IDomObject obj in cq.Find("a"))
@@ -95,33 +93,35 @@ namespace HttpClientSample
                 if (!String.IsNullOrEmpty(atr) &&
                     !atr.StartsWith('#') &&
                     !(atr.StartsWith("tel")) &&
-                    atr != mainLink)
+                    atr != urlAddress)
                 {
                     string atribute = AttributeRepair(atr);
                     var protocol = "https://";
 
+                    var splittedAtribute = atribute.Split('/');
+
                     if (WebPage.OpenedLnks.All(l => l != atribute && l + '/' != atribute) &&
-                       protocol + _homePage != atribute && atribute != "https://m.rozetka.com.ua/")
+                       protocol + _homePage != atribute &&
+                       atribute != _mUrl &&
+                       atribute != _mUrl + '/' &&
+                       atribute != _url &&
+                       atribute != _url + '/' &&
+                       !atribute.Contains(_url + "/ua")&&
+                       splittedAtribute.Length <= 5)
+                    {
+
+                        //Console.WriteLine(atribute);
+
+                        if (splittedAtribute.Length <= 3 || atribute.StartsWith(_url))
                         {
-                        var splittedAtribute = atribute.Split('/');
+                            Console.WriteLine(atribute);
 
-                        if (splittedAtribute.Length <= 4 || atribute.StartsWith(protocol + _homePage))
-                        {
-                            if(atr.StartsWith("https://") || atr.StartsWith("http://"))
-                            atr = atr.Remove(0, 8);
+                            atr = ComposeDirPath(atr);
 
-                            for (int i = 0; i < atr.Length;)
-                            {
-                                if (!char.IsLetterOrDigit(atr[i]) && atr[i] != '.')
-                                {
-                                    atr = atr.Replace(atr[i], '.');
-                                }
-                                else
-                                    i++;
-                            }
+                            WebPage.OpenedLnks.Add(atribute);
 
-                            WebPg.Html = _html;
-                            WebPg.Links.Add(new WebPage(atribute,_homePage +'/'+ atr));
+                            string purified = _url.Remove(0,8);
+                            WebPg.Links.Add(new WebPage(atribute, purified + '/'+ atr));
                         }
                     }
                 }
@@ -136,6 +136,35 @@ namespace HttpClientSample
             }
 
             return atr;
+        }
+
+        private string ComposeDirPath(string atr)
+        {
+            if (atr.StartsWith("https://") || atr.StartsWith("http://"))
+                atr = atr.Remove(0, 8);
+
+            for (int i = 0; i < atr.Length;i++)
+            {
+                if (!char.IsLetterOrDigit(atr[i]) && atr[i] != '.' && atr[i] != '/')
+                {
+                    atr = atr.Replace(atr[i], '.');
+                }
+            }
+
+            for (int i = 0; i < atr.Length;)
+            {
+
+                if (char.IsDigit(atr[i]))
+                {
+                    atr = atr.Remove(i, 1);
+                }
+                else
+                {
+                    i++;
+                }
+            }
+
+                return atr;
         }
     }
 }
